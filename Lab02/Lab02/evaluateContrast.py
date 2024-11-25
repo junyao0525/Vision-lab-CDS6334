@@ -24,7 +24,19 @@ groundtruth_dir = 'dataset/groundtruth'
 numImages = 4
 eps = 0.00000001
 
+try:
+    onlyfiles = [f for f in listdir(input_dir) if isfile(join(input_dir, f))]
+    if len(onlyfiles) == 0:
+        print("No files found in the directory.")
+    else:
+        # Get the specified number of files
+        files = onlyfiles[0:numImages]
+        print("Files to process:", files)
+except Exception as e:
+    print(f"Error reading files: {e}")
+
 onlyfiles = [f for f in listdir(input_dir) if isfile(join(input_dir, f))]
+
 files = onlyfiles[0:numImages]
 
 ## Read command linehargs

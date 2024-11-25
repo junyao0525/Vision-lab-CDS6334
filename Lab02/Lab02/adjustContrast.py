@@ -24,7 +24,13 @@ def adjustContrast(img):
     #########################################################################
     # ADD YOUR CODE BELOW THIS LINE
     
+    r,g,b =cv2.split(img)
     
+    r = cv2.equalizeHist(r)
+    g = cv2.equalizeHist(g)
+    b = cv2.equalizeHist(b)
+
+    outImg = cv2.merge((r,g,b))
     
     
      
