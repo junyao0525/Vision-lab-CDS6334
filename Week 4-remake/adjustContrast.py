@@ -19,18 +19,23 @@ def adjustContrast(img):
     # img: Input image, a 3D numpy array of row*col*3 in BGR format
     #
     # Output
-    # outImg: segmentation image
+    # outImg: enhanced image
     #
     #########################################################################
     # ADD YOUR CODE BELOW THIS LINE
+    image = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     
-    # r,g,b =cv2.split(img)
-    
-    # r = cv2.equalizeHist(r)
-    # g = cv2.equalizeHist(g)
-    # b = cv2.equalizeHist(b)
+    image_uint8 = np.clip(image.astype(np.float32), 0, 255).astype(np.uint8)
 
-    # outImg = cv2.merge((r,g,b))
+    min_val = np.min(image_uint8)
+    max_val = np.max(image_uint8)
+    
+
+    stretched_image = (image_uint8 - min_val) * (255.0 / (max_val - min_val))
+    
+    outImg = stretched_image
+
+    
     
     
      

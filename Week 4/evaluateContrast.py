@@ -18,9 +18,9 @@ from skimage.metrics import structural_similarity as SSIM
 
 # Default parameters (the only code you can change)
 verbose = False #False, 1, or 2
-input_dir = 'dataset/test'
-output_dir = 'dataset/output'
-groundtruth_dir = 'dataset/groundtruth'
+input_dir = 'Week 4/dataset/test'
+output_dir = 'Week 4/dataset/output'
+groundtruth_dir = 'Week 4/dataset/groundtruth'
 numImages = 4
 eps = 0.00000001
 

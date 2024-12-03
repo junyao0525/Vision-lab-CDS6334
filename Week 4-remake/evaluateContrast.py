@@ -18,25 +18,13 @@ from skimage.metrics import structural_similarity as SSIM
 
 # Default parameters (the only code you can change)
 verbose = False #False, 1, or 2
-input_dir = 'Lab02/Lab02/dataset/test'
-output_dir = 'Lab02/Lab02/dataset/output'
-groundtruth_dir = 'Lab02/Lab02/dataset/groundtruth'
+input_dir = 'dataset/test'
+output_dir = 'dataset/output'
+groundtruth_dir = 'dataset/groundtruth'
 numImages = 4
 eps = 0.00000001
 
-try:
-    onlyfiles = [f for f in listdir(input_dir) if isfile(join(input_dir, f))]
-    if len(onlyfiles) == 0:
-        print("No files found in the directory.")
-    else:
-        # Get the specified number of files
-        files = onlyfiles[0:numImages]
-        print("Files to process:", files)
-except Exception as e:
-    print(f"Error reading files: {e}")
-
 onlyfiles = [f for f in listdir(input_dir) if isfile(join(input_dir, f))]
-
 files = onlyfiles[0:numImages]
 
 ## Read command linehargs
@@ -78,13 +66,12 @@ def PSNR(original, compressed):
 # Evaluate each image and compare with ground-truth
 for i,name in enumerate(files):
     inputImg = cv2.imread(input_dir + '/' + name)
-    # outputImg = adj.adjustContrast(inputImg).astype('float32')
-    outputImg = cv2.imread(output_dir + '/' + name)
+    outputImg = adj.adjustContrast(inputImg).astype('float32')
     imgName = splitext(name)
     # outputImg = cv2.cvtColor(outputImg,cv2.COLOR_BGR2RGB)
     plt.imsave(output_dir + '/' + imgName[0] + '.jpg',outputImg.astype('uint8'))
     gt = cv2.imread(groundtruth_dir + '/' + imgName[0] + '.jpg')
-    gt = np.round(gt.astype('float32')/255)
+    gt = np.round(gt.astype('float32'))
     
     mae[i] = np.mean(np.abs(gt - outputImg))              
     psnr[i] = PSNR(gt,outputImg)
@@ -112,7 +99,7 @@ if verbose==1:
 else:
     
     
-    print('MSE: %.4f' % (np.sum(mae)/numImages))
+    print('MAE: %.4f' % (np.sum(mae)/numImages))
     print('PSNR: %.4f' % (np.sum(psnr)/numImages))
     print('SSIM: %.4f' % (np.sum(ssim)/numImages))
         
