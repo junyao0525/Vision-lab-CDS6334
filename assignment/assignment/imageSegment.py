@@ -135,8 +135,8 @@ def segmentImage(img):
 
     green_channel = cv2.split(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))[1]
     clahe_img = apply_CLAHE(green_channel, 2, (13, 13))
-    blurred = gaussian_blur(clahe_img, (5, 5), 1.4)
-    blurred = sharpening_img(blurred)
+    # blurred = gaussian_blur(clahe_img, (5, 5), 1.4)
+    blurred = sharpening_img(clahe_img)
     magnitude, direction = compute_gradients(blurred)
     suppressed = non_maximum_suppression(magnitude, direction)
 
@@ -145,7 +145,7 @@ def segmentImage(img):
     strong, weak = double_threshold(suppressed, low_threshold, high_threshold)
     edges = hysteresis(strong, weak)
     kernel = np.ones((5, 5), np.uint8)
-    outImg = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel, iterations=1)
+    outImg = cv2.morphologyEx(edges, cv2.MORPH_OPEN, kernel, iterations=1)
 
     # Convert to binary mask: Normalize to [0, 1]
     binary_mask = (outImg > 0).astype('float32')  # Ensure binary (0 or 1) and float32 format
