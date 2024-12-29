@@ -21,7 +21,7 @@ from os.path import isfile, join, splitext
 
 # Default parameters (the only code you can change)
 verbose = False#, 1, or 2
-setting = 'data' #'add' #
+setting = 'dataq' #'add' #
 if setting == 'data':
     input_dir = 'dataset/test'
     output_dir = 'dataset/output'
