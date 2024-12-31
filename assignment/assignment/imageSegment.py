@@ -8,7 +8,8 @@ YOUR WORKING FUNCTION
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.cluster import KMeans
+import time
+
 
 
 input_dir = 'dataset/test'
@@ -133,25 +134,56 @@ def segmentImage(img):
     #########################################################################
     # ADD YOUR CODE BELOW THIS LINE
 
+    def remove_circle (img) :
+
+        greyScale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        _, binary_mask = cv2.threshold(greyScale, 1, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+
+        contours, _ = cv2.findContours(binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        largest_contour = max(contours, key=cv2.contourArea)
+
+        # Create a mask for the circular region
+        mask = np.zeros_like(greyScale)
+        cv2.drawContours(mask, [largest_contour], -1, 255, -1)
+
+        # Invert the mask to remove the circular boundary
+        inverted_mask = cv2.bitwise_not(mask)
+
+        kernel = np.ones((3, 3), np.uint8)
+        inverted_mask = cv2.dilate(inverted_mask, kernel,iterations=1)
+
+        return inverted_mask
+
     green_channel = cv2.split(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))[1]
-    clahe_img = apply_CLAHE(green_channel, 2, (13, 13))
-    # blurred = gaussian_blur(clahe_img, (5, 5), 1.4)
-    blurred = sharpening_img(clahe_img)
-    magnitude, direction = compute_gradients(blurred)
-    suppressed = non_maximum_suppression(magnitude, direction)
+    # green_channel = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    high_threshold = np.percentile(suppressed, 90)
-    low_threshold = 0.3 * high_threshold
-    strong, weak = double_threshold(suppressed, low_threshold, high_threshold)
-    edges = hysteresis(strong, weak)
-    kernel = np.ones((5, 5), np.uint8)
-    outImg = cv2.morphologyEx(edges, cv2.MORPH_OPEN, kernel, iterations=1)
+    clahe = cv2.createCLAHE(clipLimit=2.5, tileGridSize=(8, 8))
+    enhanced_img = clahe.apply(green_channel)
 
-    # Convert to binary mask: Normalize to [0, 1]
-    binary_mask = (outImg > 0).astype('float32')  # Ensure binary (0 or 1) and float32 format
+    # Apply median blur to reduce noise
+    filtered_img = cv2.GaussianBlur(enhanced_img,(5,5),1) 
 
-    return binary_mask
-   
+    outImg = cv2.adaptiveThreshold(
+        filtered_img,
+        maxValue=1,
+        adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+        thresholdType=cv2.THRESH_BINARY_INV,
+        blockSize=15,
+        C=5,
+    )        
+
+    # Post-processing to remove small regions
+    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(outImg, connectivity=8)
+    min_size = 45
+    for i in range(1, num_labels):
+        if stats[i, cv2.CC_STAT_AREA] < min_size:
+            outImg[labels == i] = 0
+
+    # Remove the circular region
+    remove_circle_img = remove_circle(img)
+
+    outImg = cv2.subtract(outImg, remove_circle_img)
+
     # END OF YOUR CODE
     #########################################################################
     return outImg

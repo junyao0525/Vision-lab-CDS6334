@@ -18,6 +18,7 @@ from prettytable import PrettyTable
 import imageSegment as seg
 from os import listdir
 from os.path import isfile, join, splitext
+import time
 
 # Default parameters (the only code you can change)
 verbose = False#, 1, or 2
@@ -65,6 +66,8 @@ precision = np.zeros((numImages,1),)
 recall = np.zeros((numImages,1),)
 iou = np.zeros((numImages,1),)
 
+start_time = time.time()
+
 # Evaluate each image and compare with ground-truth
 for i,name in enumerate(files):
     inputImg = cv2.imread(input_dir + '/' + name)
@@ -79,6 +82,10 @@ for i,name in enumerate(files):
     error[i] = 1 - ((2*precision[i]*recall[i])/(precision[i]+recall[i]+eps))
     iou[i] = sum(sum(gt*outputImg))/sum(sum(np.clip(gt+outputImg,0,1)))
 
+# End time measurement
+end_time = time.time()
+elapsed_time = end_time - start_time
+print(f"Segmentation process completed in {elapsed_time:.4f} seconds.")
     
 # Print performance scores        
 if verbose==1:
